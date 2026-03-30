@@ -13,11 +13,15 @@ const CATEGORIES = [
 ]
 
 function fmt(n) {
-  return Math.abs(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const num = parseFloat(n) || 0
+  return Math.abs(num).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 export default function ExpensesTab({ data }) {
-  const { expenses, transactions } = data
+  const {
+    expenses     = [],
+    transactions = [],
+  } = data ?? {}
   const [showBreakdown, setShowBreakdown] = useState(true)
   const [showTransactions, setShowTransactions] = useState(true)
 

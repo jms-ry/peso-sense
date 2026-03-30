@@ -2,11 +2,24 @@ import { useState } from 'react'
 import './SavingsTab.css'
 
 function fmt(n) {
-  return Math.abs(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const num = parseFloat(n) || 0
+  return Math.abs(num).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 export default function SavingsTab({ data }) {
-  const { totalSavings, availableBalance, savingsHistory, savingsStats } = data
+  const {
+    funds: {
+      totalSavings     = 0,
+      availableBalance = 0,
+      totalFunds       = 0,
+    } = {},
+    savings: {
+      totalAdded       = 0,
+      totalWithdrawn   = 0,
+      savingsHistory   = [],
+    } = {},
+  } = data ?? {}
+  const savingsPct = totalFunds ? Math.round((totalSavings / totalFunds) * 100) : 0
   const [addExpanded, setAddExpanded] = useState(false)
   const [withdrawExpanded, setWithdrawExpanded] = useState(false)
   const [source, setSource] = useState('balance')
@@ -97,15 +110,17 @@ export default function SavingsTab({ data }) {
       {/* Stats */}
       <div className="savings-stats">
         <div className="sstat">
-          <div className="sstat__val" style={{ color: 'var(--green)' }}>₱ {fmt(savingsStats.totalAdded)}</div>
+          <div className="sstat__val" style={{ color: 'var(--green)' }}>₱ {fmt(totalAdded)}</div>
           <div className="sstat__label">Total Added</div>
         </div>
         <div className="sstat">
-          <div className="sstat__val" style={{ color: 'var(--red)' }}>₱ {fmt(savingsStats.totalWithdrawn)}</div>
+          <div className="sstat__val" style={{ color: 'var(--red)' }}>₱ {fmt(totalWithdrawn)}</div>
           <div className="sstat__label">Withdrawn</div>
         </div>
         <div className="sstat">
-          <div className="sstat__val" style={{ color: 'var(--blue)' }}>{savingsStats.pctOfFunds}%</div>
+          <div className="sstat__val" style={{ color: 'var(--blue)' }}>
+            {savingsPct}%
+          </div>
           <div className="sstat__label">of Total Funds</div>
         </div>
       </div>
@@ -137,7 +152,7 @@ export default function SavingsTab({ data }) {
           <div className="insight__title insight__title--teal">Save at least 20% of your income</div>
           <div className="insight__text">
             Financial advisors recommend saving 20% of every paycheck.
-            You're currently at {savingsStats.pctOfFunds}% — great job keeping it up!
+            You're currently at {savingsPct}% — great job keeping it up!
           </div>
         </div>
       </div>

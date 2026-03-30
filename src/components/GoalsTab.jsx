@@ -2,7 +2,8 @@ import { useState } from 'react'
 import './GoalsTab.css'
 
 function fmt(n) {
-  return n.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const num = parseFloat(n) || 0
+  return num.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 function GoalCard({ goal, availableBalance }) {
@@ -78,7 +79,13 @@ function GoalCard({ goal, availableBalance }) {
 }
 
 export default function GoalsTab({ data }) {
-  const { goals, availableBalance, totalGoals } = data
+  const {
+    funds: {
+      availableBalance = 0,
+      totalGoals       = 0,
+    } = {},
+    goals = [],
+  } = data ?? {}
 
   return (
     <div className="goals-tab">
