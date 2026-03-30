@@ -1,0 +1,205 @@
+.funds-card {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.funds-card__glow {
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba(108,142,255,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.funds-card__glow2 {
+  position: absolute;
+  bottom: -60px; left: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(52,211,153,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.funds-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  position: relative;
+  gap: 12px;
+}
+
+.funds-card__balances {
+  min-width: 0;
+  flex: 1;
+}
+
+.funds-card__avail-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-l);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 4px;
+}
+
+.funds-card__avail-amount {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--cream);
+  word-break: keep-all;
+  white-space: nowrap;
+}
+
+.funds-card__total-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.funds-card__total-amount {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted-l);
+}
+
+.funds-card__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-l);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 5px;
+}
+
+.funds-card__amount {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--cream);
+}
+
+.funds-card__sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+.funds-card__add-btn {
+  background: var(--blue-bg2);
+  border: 1px solid rgba(108,142,255,0.3);
+  color: var(--blue);
+  border-radius: var(--radius-md);
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+
+.funds-card__add-btn:hover {
+  background: var(--blue);
+  color: #000820;
+  border-color: var(--blue);
+}
+
+/* Segmented bar */
+.funds-card__seg-wrap {
+  display: flex;
+  gap: 3px;
+  height: 8px;
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.funds-card__seg {
+  height: 100%;
+  min-width: 4px;
+}
+
+.funds-card__seg--expense { background: var(--red);   }
+.funds-card__seg--goals   { background: var(--blue);  }
+.funds-card__seg--savings { background: var(--green); }
+.funds-card__seg--free    { background: var(--cream);   }
+
+/* Legend */
+.funds-card__legend {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.funds-card__legend::-webkit-scrollbar { display: none; }
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted-l);
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot--expense { background: var(--red);   }
+.legend-dot--goals   { background: var(--blue);  }
+.legend-dot--savings { background: var(--green); }
+.legend-dot--free    { background: var(--cream);   }
+
+/* Stats */
+.funds-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  position: relative;
+}
+
+.funds-stat {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 11px 10px;
+  text-align: center;
+}
+
+.funds-stat__val {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.funds-stat__val--red   { color: var(--red);   }
+.funds-stat__val--blue  { color: var(--blue);  }
+.funds-stat__val--green { color: var(--green); }
+
+.funds-stat__label {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

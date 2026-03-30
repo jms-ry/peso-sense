@@ -1,121 +1,75 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import Header from './components/Header'
+import FundsCard from './components/FundsCard'
+import TabBar from './components/TabBar'
+import ExpensesTab from './components/ExpensesTab'
+import GoalsTab from './components/GoalsTab'
+import SavingsTab from './components/SavingsTab'
+import Footer from './components/Footer'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const DUMMY_DATA = {
+  totalFunds: 12450,
+  availableBalance: 5212.50,
+  totalExpenses: 6100,
+  totalGoals: 3487.50,
+  totalSavings: 2500,
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+  expenses: [
+    { id: 1, category: 'Food',           icon: '🍚', color: 'var(--amber)',  amount: 3355, pct: 55 },
+    { id: 2, category: 'Transportation', icon: '🚌', color: 'var(--blue)',   amount: 1342, pct: 22 },
+    { id: 3, category: 'Bills',          icon: '🏠', color: 'var(--red)',    amount: 854,  pct: 14 },
+    { id: 4, category: 'Leisure',        icon: '🎮', color: 'var(--pink)',   amount: 549,  pct: 9  },
+  ],
 
-      <div className="ticks"></div>
+  transactions: [
+    { id: 1,  icon: '🍱', bg: 'var(--amber-bg)',  name: 'Lunch — Carinderia',      meta: 'Food · Today, 12:30 PM',   amount: -85,    type: 'expense'  },
+    { id: 2,  icon: '🚌', bg: 'var(--blue-bg)',   name: 'Jeepney fare',             meta: 'Fare · Today, 7:15 AM',    amount: -14,    type: 'expense'  },
+    { id: 3,  icon: '🎯', bg: 'var(--purple-bg)', name: 'Added to Laptop Fund',     meta: 'Goal · Yesterday, 9 PM',   amount: -500,   type: 'goal'     },
+    { id: 4,  icon: '💸', bg: 'var(--green-bg)',  name: 'Monthly salary',           meta: 'Income · Mar 1',           amount: 8000,   type: 'income'   },
+    { id: 5,  icon: '🏦', bg: 'var(--teal-bg)',   name: 'Added to Savings',         meta: 'Savings · Mar 1',          amount: -1000,  type: 'savings'  },
+  ],
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+  goals: [
+    { id: 1, icon: '💻', bg: 'var(--blue-bg)',   name: 'New Laptop',   target: 35000, saved: 15750, color: 'var(--blue)'   },
+    { id: 2, icon: '✈️', bg: 'var(--pink-bg)',   name: 'Vacation Fund',target: 15000, saved: 2700,  color: 'var(--pink)'   },
+    { id: 3, icon: '📱', bg: 'var(--amber-bg)',  name: 'New Phone',    target: 20000, saved: 400,   color: 'var(--amber)'  },
+  ],
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+  savingsHistory: [
+    { id: 1, icon: '🏦', bg: 'var(--teal-bg)',  name: 'Added to savings',      meta: 'From balance · Mar 15', amount: 500,   type: 'income'  },
+    { id: 2, icon: '↓',  bg: 'var(--red-bg)',   name: 'Withdrawal — emergency',meta: 'To balance · Mar 10',   amount: -1000, type: 'expense' },
+    { id: 3, icon: '🏦', bg: 'var(--teal-bg)',  name: 'Added to savings',      meta: 'New fund · Mar 1',      amount: 2000,  type: 'income'  },
+  ],
+
+  savingsStats: {
+    totalAdded: 3500,
+    totalWithdrawn: 1000,
+    pctOfFunds: 20,
+  },
 }
 
-export default App
+export default function App() {
+  const [activeTab, setActiveTab] = useState('expenses')
+
+  const handleSettings = () => {
+    // Export/Import modal — to be implemented in next phase
+    alert('Export / Import coming soon!')
+  }
+
+  return (
+    <div className="app">
+      <div className="app__inner">
+        <Header onSettings={handleSettings}/>
+        <main className="app__main">
+          <FundsCard data={DUMMY_DATA} />
+          <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+          {activeTab === 'expenses' && <ExpensesTab data={DUMMY_DATA} />}
+          {activeTab === 'goals'    && <GoalsTab    data={DUMMY_DATA} />}
+          {activeTab === 'savings'  && <SavingsTab  data={DUMMY_DATA} />}
+        </main>
+        <Footer />
+      </div>
+    </div>
+  )
+}
