@@ -64,7 +64,7 @@
 }
 
 .funds-card__total-amount {
-  font-size: 13px;
+  font-size: clamp(13px);
   font-weight: 700;
   color: var(--muted-l);
 }

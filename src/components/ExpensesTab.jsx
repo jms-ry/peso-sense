@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useApp } from '../context/AppContext'
 import './ExpensesTab.css'
 
 const CATEGORIES = [
@@ -17,13 +18,78 @@ function fmt(n) {
   return Math.abs(num).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-export default function ExpensesTab({ data }) {
-  const {
-    expenses     = [],
-    transactions = [],
-  } = data ?? {}
+function formatDate(iso) {
+  const d = new Date(iso)
+  const now = new Date()
+  const isToday = d.toDateString() === now.toDateString()
+  const yesterday = new Date(now)
+  yesterday.setDate(now.getDate() - 1)
+  const isYesterday = d.toDateString() === yesterday.toDateString()
+
+  const time = d.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+
+  if (isToday)     return `Today, ${time}`
+  if (isYesterday) return `Yesterday, ${time}`
+  return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }) + `, ${time}`
+}
+
+export default function ExpensesTab() {
+  const { data, logExpense } = useApp()
+  const { transactions = [], funds = {} } = data ?? {}
+
+  const [selectedCat, setSelectedCat] = useState(CATEGORIES[0])
+  const [amount, setAmount] = useState('')
+  const [setError] = useState('')
   const [showBreakdown, setShowBreakdown] = useState(true)
   const [showTransactions, setShowTransactions] = useState(true)
+  const amt = parseFloat(amount)
+  const exceedsBalance = amt > (funds.availableBalance ?? 0)
+  const canAdd = amt > 0 && !exceedsBalance
+ 
+  const handleAdd = () => {
+  if (!canAdd) return
+
+  logExpense({
+    amount: amt,
+    category: selectedCat.label,
+    icon: selectedCat.icon,
+    name: selectedCat.label,
+  })
+
+  setAmount('')
+}
+  // Build breakdown from transactions
+  const expenseTransactions = transactions.filter(tx => tx.type === 'expense')
+  const totalSpent = expenseTransactions.reduce((sum, tx) => sum + tx.amount, 0)
+
+  const breakdownMap = {}
+  for (const tx of expenseTransactions) {
+    if (!breakdownMap[tx.category]) {
+      breakdownMap[tx.category] = { icon: tx.icon, amount: 0 }
+    }
+    breakdownMap[tx.category].amount += tx.amount
+  }
+
+  const breakdown = Object.entries(breakdownMap)
+    .map(([category, { icon, amount }]) => ({
+      category,
+      icon,
+      amount,
+      pct: totalSpent ? Math.round((amount / totalSpent) * 100) : 0,
+      color: CATEGORIES.find(c => c.label === category)?.color ?? 'var(--muted)',
+    }))
+    .sort((a, b) => b.amount - a.amount)
+
+  const CATEGORY_COLORS = {
+    'Food':          'var(--amber)',
+    'Fare':          'var(--blue)',
+    'Bills':         'var(--red)',
+    'Groceries':     'var(--green)',
+    'Health':        'var(--teal)',
+    'Leisure':       'var(--pink)',
+    'Clothing':      'var(--purple)',
+    'Other':         'var(--muted-l)',
+  }
 
   return (
     <div className="expenses-tab">
@@ -32,60 +98,85 @@ export default function ExpensesTab({ data }) {
       <div className="log-panel">
         <div className="log-panel__label">Log Expense</div>
         <div className="log-panel__categories">
-          {CATEGORIES.map((cat, i) => (
-            <div key={cat.id} className={`cat-btn ${i === 0 ? 'cat-btn--active' : ''}`}>
+          {CATEGORIES.map(cat => (
+            <div
+              key={cat.id}
+              className={`cat-btn ${selectedCat.id === cat.id ? 'cat-btn--active' : ''}`}
+              onClick={() => { setSelectedCat(cat); setError('') }}
+            >
               <span className="cat-btn__icon">{cat.icon}</span>
               <span className="cat-btn__label">{cat.label}</span>
             </div>
           ))}
         </div>
         <div className="log-panel__input-row">
-          <input className="input--expenses-amount" type="number" placeholder="₱ 0.00" />
-          <button className="btn btn--expenses">Add Expense</button>
+          <input
+            className="input--expenses-amount"
+            type="number"
+            placeholder="₱ 0.00"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && canAdd && handleAdd()}
+          />
+          <button
+            className={`btn btn--expenses ${canAdd ? '' : 'btn--disabled'}`}
+            onClick={handleAdd}
+            disabled={!canAdd}
+          >
+            Add Expense
+          </button>
         </div>
+        {exceedsBalance && amt > 0 && (
+          <div className="log-panel__error">
+            <span>
+              Amount exceeds available balance of ₱ {fmt(funds.availableBalance ?? 0)}.
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Spending Breakdown */}
       <div className="card">
         <div className="card__hdr">
           <span className="card__title">Spending Breakdown</span>
-          <span
-            className="card__toggle"
-            onClick={() => setShowBreakdown(!showBreakdown)}
-          >
+          <span className="card__toggle" onClick={() => setShowBreakdown(!showBreakdown)}>
             {showBreakdown ? '▲ Hide' : '▼ Show'}
           </span>
         </div>
-        {showBreakdown && expenses.map(exp => (
-          <div key={exp.id} className="breakdown-item">
-            <div className="breakdown-icon" style={{ background: `${exp.color}1A` }}>
-              {exp.icon}
-            </div>
-            <div className="breakdown-info">
-              <div className="breakdown-name">{exp.category}</div>
-              <div className="breakdown-bar-wrap">
-                <div
-                  className="breakdown-bar"
-                  style={{ width: `${exp.pct}%`, background: exp.color }}
-                />
+        {showBreakdown && (
+          breakdown.length === 0
+            ? <div className="empty-state">No expenses logged yet.</div>
+            : breakdown.map((exp, i) => (
+              <div key={i} className="breakdown-item">
+                <div className="breakdown-icon" style={{ background: `${CATEGORY_COLORS[exp.category] ?? 'var(--muted)'}1A` }}>
+                  {exp.icon}
+                </div>
+                <div className="breakdown-info">
+                  <div className="breakdown-name">{exp.category}</div>
+                  <div className="breakdown-bar-wrap">
+                    <div
+                      className="breakdown-bar"
+                      style={{ width: `${exp.pct}%`, background: CATEGORY_COLORS[exp.category] ?? 'var(--muted)' }}
+                    />
+                  </div>
+                </div>
+                <div className="breakdown-right">
+                  <div className="breakdown-amount">₱ {fmt(exp.amount)}</div>
+                  <div className="breakdown-pct">{exp.pct}%</div>
+                </div>
               </div>
-            </div>
-            <div className="breakdown-right">
-              <div className="breakdown-amount">₱ {fmt(exp.amount)}</div>
-              <div className="breakdown-pct">{exp.pct}%</div>
-            </div>
-          </div>
-        ))}
+            ))
+        )}
       </div>
 
       {/* Insight */}
       <div className="insight">
         <span className="insight__icon">💡</span>
         <div>
-          <div className="insight__title">Food is your biggest expense</div>
+          <div className="insight__title">Track every peso</div>
           <div className="insight__text">
-            At 55% of total spending, food costs are high. Consider meal prepping
-            or buying from wet markets to save ₱ 500–800/month.
+            Logging expenses consistently helps you understand where your money goes
+            and make smarter spending decisions over time.
           </div>
         </div>
       </div>
@@ -94,25 +185,28 @@ export default function ExpensesTab({ data }) {
       <div className="card">
         <div className="card__hdr">
           <span className="card__title">Recent Transactions</span>
-          <span
-            className="card__toggle"
-            onClick={() => setShowTransactions(!showTransactions)}
-          >
+          <span className="card__toggle" onClick={() => setShowTransactions(!showTransactions)}>
             {showTransactions ? '▲ Hide' : '▼ Show'}
           </span>
         </div>
-        {showTransactions && transactions.map(tx => (
-          <div key={tx.id} className="tx-item">
-            <div className="tx-icon" style={{ background: tx.bg }}>{tx.icon}</div>
-            <div className="tx-info">
-              <div className="tx-name">{tx.name}</div>
-              <div className="tx-meta">{tx.meta}</div>
-            </div>
-            <div className={`tx-amount tx-amount--${tx.type}`}>
-              {tx.amount > 0 ? '+' : '-'} ₱ {fmt(tx.amount)}
-            </div>
-          </div>
-        ))}
+        {showTransactions && (
+          transactions.length === 0
+            ? <div className="empty-state">No transactions yet.</div>
+            : transactions.slice(0, 10).map(tx => (
+              <div key={tx.id} className="tx-item">
+                <div className="tx-icon" style={{ background: `${CATEGORY_COLORS[tx.category] ?? 'var(--blue)'}1A` }}>
+                  {tx.icon}
+                </div>
+                <div className="tx-info">
+                  <div className="tx-name">{tx.name}</div>
+                  <div className="tx-meta">{tx.category} · {formatDate(tx.date)}</div>
+                </div>
+                <div className={`tx-amount tx-amount--${tx.type}`}>
+                  {tx.type === 'income' ? '+' : '-'} ₱ {fmt(tx.amount)}
+                </div>
+              </div>
+            ))
+        )}
       </div>
 
       {/* Tips */}
