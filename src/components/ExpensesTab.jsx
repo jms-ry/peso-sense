@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
+import { generateInsights } from '../utils/insights'
+import InsightsCard from './InsightsCard'
 import './ExpensesTab.css'
 
 const CATEGORIES = [
@@ -39,13 +41,13 @@ export default function ExpensesTab() {
 
   const [selectedCat, setSelectedCat] = useState(CATEGORIES[0])
   const [amount, setAmount] = useState('')
-  const [setError] = useState('')
+  const [error, setError] = useState('')
   const [showBreakdown, setShowBreakdown] = useState(true)
   const [showTransactions, setShowTransactions] = useState(true)
   const amt = parseFloat(amount)
   const exceedsBalance = amt > (funds.availableBalance ?? 0)
   const canAdd = amt > 0 && !exceedsBalance
- 
+  const insights = generateInsights(data)
   const handleAdd = () => {
   if (!canAdd) return
 
@@ -170,7 +172,7 @@ export default function ExpensesTab() {
       </div>
 
       {/* Insight */}
-      <div className="insight">
+      {/* <div className="insight">
         <span className="insight__icon">💡</span>
         <div>
           <div className="insight__title">Track every peso</div>
@@ -179,7 +181,8 @@ export default function ExpensesTab() {
             and make smarter spending decisions over time.
           </div>
         </div>
-      </div>
+      </div> */}
+      <InsightsCard insights={insights} />
 
       {/* Recent Transactions */}
       <div className="card">

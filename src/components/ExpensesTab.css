@@ -199,21 +199,6 @@
 .breakdown-amount { font-size: 13px; font-weight: 700; color: var(--cream); }
 .breakdown-pct    { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
-/* Insight */
-.insight {
-  background: var(--amber-bg2);
-  border: 1px solid rgba(251,191,36,0.2);
-  border-radius: var(--radius-md);
-  padding: 14px;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.insight__icon  { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
-.insight__title { font-size: 13px; font-weight: 700; color: var(--amber); margin-bottom: 3px; }
-.insight__text  { font-size: 12px; color: var(--muted-l); line-height: 1.6; }
-
 /* Transactions */
 .tx-item {
   display: flex;
