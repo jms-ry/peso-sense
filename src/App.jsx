@@ -7,20 +7,18 @@ import ExpensesTab from './components/ExpensesTab'
 import GoalsTab from './components/GoalsTab'
 import SavingsTab from './components/SavingsTab'
 import Footer from './components/Footer'
+import SettingsModal from './components/SettingsModal'
 import './App.css'
 
 export default function App() {
   const { data } = useApp()
   const [activeTab, setActiveTab] = useState('expenses')
-
-  const handleSettings = () => {
-    alert('Export / Import coming soon!')
-  }
+  const [showSettings,   setShowSettings]   = useState(false)
 
   return (
     <div className="app">
       <div className="app__inner">
-        <Header onSettings={handleSettings} />
+        <Header onSettings={() => setShowSettings(true)} />
         <main className="app__main">
           <FundsCard data={data} />
           <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
@@ -30,6 +28,9 @@ export default function App() {
         </main>
         <Footer />
       </div>
+      {showSettings && (
+        <SettingsModal onClose={() => setShowSettings(false)} />
+      )}
     </div>
   )
 }
