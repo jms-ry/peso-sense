@@ -113,7 +113,7 @@
 }
 
 .log-panel__error {
-  font-size: clamp(6px);
+  font-size: clamp(12px , .5vw, 10px);
   display: flex;
   color: var(--red);
   background: var(--red-bg);
@@ -124,6 +124,8 @@
   width: 100%;
   max-width: 280px;
   margin: 1rem auto;
+  font-weight: 600; 
+  letter-spacing: -0.03em;
 }
 
 .empty-state {

@@ -129,7 +129,7 @@ export default function ExpensesTab() {
         {exceedsBalance && amt > 0 && (
           <div className="log-panel__error">
             <span>
-              Amount exceeds available balance of ₱ {fmt(funds.availableBalance ?? 0)}.
+              Amount exceeds available balance of ₱&nbsp;{fmt(funds.availableBalance ?? 0)}.
             </span>
           </div>
         )}

@@ -197,6 +197,8 @@ export function AppProvider({ children }) {
     const goal = data.goals.find(g => g.id === goalId)
     if (!goal) return
 
+    if(goal.saved > 0) return
+    
     updateData(prev => ({
       ...prev,
       funds: {
