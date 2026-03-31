@@ -219,13 +219,14 @@ export default function GoalsTab() {
   const goals = data?.goals ?? []
   const totalGoals = data?.funds?.totalGoals ?? 0
   const completed = goals.filter(g => g.saved >= g.target).length
+  const active  = goals.filter(g => g.saved < g.target).length
 
   return (
     <div className="goals-tab">
 
       <div className="goals-stats">
         <div className="gstat">
-          <div className="gstat__val" style={{ color: 'var(--purple)' }}>{goals.length}</div>
+          <div className="gstat__val" style={{ color: 'var(--purple)' }}>{active}</div>
           <div className="gstat__label">Active Goals</div>
         </div>
         <div className="gstat">
