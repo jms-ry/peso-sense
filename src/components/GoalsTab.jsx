@@ -130,7 +130,7 @@ function GoalCard({ goal }) {
         <div className="goal-card__progress">₱ {fmt(goal.saved)} of ₱ {fmt(goal.target)}</div>
         <div className="goal-card__actions">
           {/* Add button (only if not completed) */}
-          {!isCompleted && (
+          {hasProgress && !isCompleted && (
             <button
               className="goal-card__add-btn"
               onClick={() => setExpanded(!expanded)}
@@ -221,6 +221,22 @@ export default function GoalsTab() {
   const completed = goals.filter(g => g.saved >= g.target).length
   const active  = goals.filter(g => g.saved < g.target).length
 
+  const sortedGoals = [...goals].sort((a, b) => {
+    const aCompleted = a.saved >= a.target
+    const bCompleted = b.saved >= b.target
+
+    // 1. Completed goes last
+    if (aCompleted !== bCompleted) return aCompleted ? 1 : -1
+
+    // 2. Among non-completed, prioritize those with progress
+    const aHasProgress = a.saved > 0
+    const bHasProgress = b.saved > 0
+
+    if (aHasProgress !== bHasProgress) return aHasProgress ? -1 : 1
+
+    // 3. Newest first
+    return new Date(b.createdAt) - new Date(a.createdAt)
+  })
   return (
     <div className="goals-tab">
 
@@ -258,7 +274,7 @@ export default function GoalsTab() {
           <div className="empty-state">No goals yet. Create one to get started!</div>
         )}
 
-        {goals.map(goal => (
+        {sortedGoals.map(goal => (
           <GoalCard key={goal.id} goal={goal} />
         ))}
       </div>
