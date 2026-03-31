@@ -154,7 +154,7 @@ export function AppProvider({ children }) {
         ...prev.savings,
         total:      prev.savings.total + amt,
         totalAdded: prev.savings.totalAdded + amt,
-        history:    [entry, ...prev.savings.history],
+        savingsHistory:    [entry, ...prev.savings.savingsHistory],
       },
       transactions: [tx, ...prev.transactions],
     }))
@@ -195,7 +195,7 @@ export function AppProvider({ children }) {
         ...prev.savings,
         total:           prev.savings.total - amt,
         totalWithdrawn:  prev.savings.totalWithdrawn + amt,
-        history:         [entry, ...prev.savings.history],
+        savingsHistory:         [entry, ...prev.savings.savingsHistory],
       },
       transactions: [tx, ...prev.transactions],
     }))
