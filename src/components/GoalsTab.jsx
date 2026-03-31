@@ -101,7 +101,6 @@ function GoalCard({ goal }) {
   const exceedsBalance = source === 'balance' && amt > availableBalance
   const canAdd = amt > 0 && !exceedsBalance
   const isCompleted = goal.saved >= goal.target
-  const hasProgress = goal.saved > 0
   const canDelete = goal.saved === 0
 
   const handleAdd = () => {
@@ -130,7 +129,7 @@ function GoalCard({ goal }) {
         <div className="goal-card__progress">₱ {fmt(goal.saved)} of ₱ {fmt(goal.target)}</div>
         <div className="goal-card__actions">
           {/* Add button (only if not completed) */}
-          {hasProgress && !isCompleted && (
+          {!isCompleted && (
             <button
               className="goal-card__add-btn"
               onClick={() => setExpanded(!expanded)}
