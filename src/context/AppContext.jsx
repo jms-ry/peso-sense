@@ -84,13 +84,22 @@ export function AppProvider({ children }) {
     if (!amt || amt <= 0) return
     if (source === 'balance' && amt > data.funds.availableBalance) return
 
+    // guard: cannot fund a completed goal
+    const goal = data.goals.find(g => g.id === goalId)
+    if (!goal) return
+    if (goal.saved >= goal.target) return
+
+    // cap the amount to not exceed the remaining target
+    const remaining = goal.target - goal.saved
+    const finalAmt = Math.min(amt, remaining)
+
     const tx = {
       id: crypto.randomUUID(),
       type: 'goal',
       category: 'Goal',
       icon: '🎯',
-      name: `Added to ${data.goals.find(g => g.id === goalId)?.name}`,
-      amount: amt,
+      name: `Added to ${goal.name}`,
+      amount: finalAmt,
       date: new Date().toISOString(),
     }
 
@@ -98,12 +107,12 @@ export function AppProvider({ children }) {
       ...prev,
       funds: {
         ...prev.funds,
-        totalFunds:       source === 'new' ? prev.funds.totalFunds + amt : prev.funds.totalFunds,
-        availableBalance: source === 'balance' ? prev.funds.availableBalance - amt : prev.funds.availableBalance,
-        totalGoals:       prev.funds.totalGoals + amt,
+        totalFunds:       source === 'new' ? prev.funds.totalFunds + finalAmt : prev.funds.totalFunds,
+        availableBalance: source === 'balance' ? prev.funds.availableBalance - finalAmt : prev.funds.availableBalance,
+        totalGoals:       prev.funds.totalGoals + finalAmt,
       },
       goals: prev.goals.map(g =>
-        g.id === goalId ? { ...g, saved: g.saved + amt } : g
+        g.id === goalId ? { ...g, saved: g.saved + finalAmt } : g
       ),
       transactions: [tx, ...prev.transactions],
     }))
