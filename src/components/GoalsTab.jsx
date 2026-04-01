@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
+import { useToast } from '../context/ToastContext'
 import './GoalsTab.css'
 
 function fmt(n) {
@@ -102,6 +103,8 @@ function GoalCard({ goal }) {
   const canAdd = amt > 0 && !exceedsBalance
   const isCompleted = goal.saved >= goal.target
   const canDelete = goal.saved === 0
+  const [showConfirm, setShowConfirm] = useState(false)
+  const { showToast } = useToast()
 
   const handleAdd = () => {
     if (!canAdd) return
@@ -142,7 +145,7 @@ function GoalCard({ goal }) {
           {canDelete && (
             <button
               className="goal-card__delete-btn"
-              onClick={() => deleteGoal(goal.id)}
+              onClick={() => setShowConfirm(true)}
               title="Delete goal"
             >
               🗑
@@ -205,6 +208,41 @@ function GoalCard({ goal }) {
               Amount exceeds available balance of ₱&nbsp;{fmt(availableBalance)}.
             </div>
           )}
+        </div>
+      )}
+      {showConfirm && (
+        <div className="modal-overlay">
+          <div className="confirm-modal">
+            <div className="confirm-modal__header">
+              <div className="confirm-modal__title">Delete Goal?</div>
+            </div>
+            <div className="confirm-modal__body">
+              <div className="confirm-modal__text">
+                This will permanently remove <strong className='confirm-modal__goalName'>{goal.name}</strong> goal.
+              </div>
+              <div className="confirm-modal__actions">
+                <button
+                  className="confirm-modal__cancel"
+                  onClick={() => setShowConfirm(false)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className="confirm-modal__delete"
+                  onClick={() => {
+                    deleteGoal(goal.id)
+                    showToast(`Deleted ${goal.name} goal successfully!`, 'success')
+                    setShowConfirm(false)
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+
+            
+          </div>
         </div>
       )}
     </div>
