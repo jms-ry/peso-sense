@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { generateInsights } from '../utils/insights'
 import InsightsCard from './InsightsCard'
+import { useToast } from '../context/ToastContext'
 import './ExpensesTab.css'
 
 const CATEGORIES = [
@@ -48,6 +49,7 @@ export default function ExpensesTab() {
   const exceedsBalance = amt > (funds.availableBalance ?? 0)
   const canAdd = amt > 0 && !exceedsBalance
   const insights = generateInsights(data)
+  const { showToast } = useToast()
   const handleAdd = () => {
   if (!canAdd) return
 
@@ -59,6 +61,7 @@ export default function ExpensesTab() {
   })
 
   setAmount('')
+  showToast(`Logged ₱${amt.toFixed(2)} for ${selectedCat.label}!`, 'success')
 }
   // Build breakdown from transactions
   const expenseTransactions = transactions.filter(tx => tx.type === 'expense')

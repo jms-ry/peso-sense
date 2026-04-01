@@ -35,6 +35,8 @@ export default function SettingsModal({ onClose }) {
     link.download = `pesosense-backup-${date}.json`
     link.click()
     URL.revokeObjectURL(url)
+
+    showToast('Data exported successfully!', 'success')
   }
 
   // ── IMPORT ──────────────────────────────────────────────────

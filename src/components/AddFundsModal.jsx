@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
+import { useToast } from '../context/ToastContext'
 import './AddFundsModal.css'
 
 const SOURCES = [
@@ -16,7 +17,7 @@ export default function AddFundsModal({ onClose }) {
   const [error, setError] = useState('')
 
   const canSubmit = source && parseFloat(amount) > 0
-
+  const { showToast } = useToast()
   const handleSubmit = () => {
     const amt = parseFloat(amount)
     if (!amt || amt <= 0) { setError('Please enter a valid amount.'); return }
@@ -29,6 +30,8 @@ export default function AddFundsModal({ onClose }) {
       icon: src.icon,
       name: `${src.label} received`,
     })
+
+    showToast(`Added ₱${amt.toFixed(2)} from ${src.label}!`, 'success')
     onClose()
   }
 

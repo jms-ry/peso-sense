@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
+import { useToast } from '../context/ToastContext'
 import './SavingsTab.css'
 
 function fmt(n) {
@@ -23,6 +24,7 @@ function formatDate(iso) {
 export default function SavingsTab() {
   const { data, addSavings, withdrawSavings } = useApp()
   const [showHistory, setShowHistory] = useState(true)
+ const { showToast } = useToast()
 
   const {
     funds: {
@@ -58,6 +60,7 @@ export default function SavingsTab() {
     addSavings({ amount: addAmt, source })
     setAddAmount('')
     setAddExpanded(false)
+    showToast(`Added ₱${addAmt.toFixed(2)} to savings from ${source === 'balance' ? 'available balance' : 'new fund'}!`, 'success')
   }
 
   const handleWithdraw = () => {
@@ -65,6 +68,7 @@ export default function SavingsTab() {
     withdrawSavings({ amount: withdrawAmt })
     setWithdrawAmount('')
     setWithdrawExpanded(false)
+    showToast(`Withdrew ₱${withdrawAmt.toFixed(2)} from savings to available balance!`, 'success')
   }
 
   const handleAddToggle = () => {
