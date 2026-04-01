@@ -219,6 +219,66 @@ export function AppProvider({ children }) {
     }))
   }
 
+  function undoTransaction(tx) {
+    updateData(prev => {
+      let funds = { ...prev.funds }
+
+      if (tx.type === 'expense') {
+        funds.availableBalance += tx.amount
+        funds.totalExpenses    -= tx.amount
+      } else if (tx.type === 'income') {
+        funds.availableBalance -= tx.amount
+        funds.totalFunds       -= tx.amount
+      } else if (tx.type === 'goal') {
+        const goal = prev.goals.find(g => tx.name.includes(g.name))
+        if (goal) {
+          funds.totalGoals -= tx.amount
+          if (tx.source !== 'new') funds.availableBalance += tx.amount
+          else funds.totalFunds -= tx.amount
+        }
+      } else if (tx.type === 'savings') {
+        funds.totalSavings -= tx.amount
+        if (tx.source !== 'new') funds.availableBalance += tx.amount
+        else funds.totalFunds -= tx.amount
+      } else if (tx.type === 'withdrawal') {
+        funds.availableBalance -= tx.amount
+        funds.totalSavings     += tx.amount
+      }
+
+      return {
+        ...prev,
+        funds,
+        transactions: prev.transactions.filter(t => t.id !== tx.id),
+        goals: tx.type === 'goal'
+          ? prev.goals.map(g =>
+              tx.name.includes(g.name)
+                ? { ...g, saved: Math.max(0, g.saved - tx.amount) }
+                : g
+            )
+          : prev.goals,
+        savings: tx.type === 'savings'
+          ? {
+              ...prev.savings,
+              total:      Math.max(0, prev.savings.total - tx.amount),
+              totalAdded: Math.max(0, prev.savings.totalAdded - tx.amount),
+              savingsHistory: prev.savings.savingsHistory.filter(
+                s => Math.abs(new Date(s.date) - new Date(tx.date)) > 1000
+              ),
+            }
+          : tx.type === 'withdrawal'
+          ? {
+              ...prev.savings,
+              total:          prev.savings.total + tx.amount,
+              totalWithdrawn: Math.max(0, prev.savings.totalWithdrawn - tx.amount),
+              savingsHistory: prev.savings.savingsHistory.filter(
+                s => Math.abs(new Date(s.date) - new Date(tx.date)) > 1000
+              ),
+            }
+          : prev.savings,
+      }
+    })
+  }
+
   return (
     <AppContext.Provider value={{
       data,
@@ -229,6 +289,7 @@ export function AppProvider({ children }) {
       addSavings,
       withdrawSavings,
       deleteGoal,
+      undoTransaction,
       updateData,
     }}>
       {children}

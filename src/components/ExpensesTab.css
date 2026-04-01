@@ -237,6 +237,77 @@
 .tx-amount--goal    { color: var(--purple); }
 .tx-amount--savings { color: var(--teal);   }
 
+.swipeable-wrap {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.swipeable-wrap:last-child { border-bottom: none; }
+
+.swipeable-content {
+  transform: translateX(0);
+  transition: transform 0.25s ease;
+  background: var(--bg2);
+  position: relative;
+  z-index: 1;
+  cursor: grab;
+  user-select: none;
+}
+
+.swipeable-content--swiped {
+  transform: translateX(-80px);
+}
+
+.swipeable-content .tx-item {
+  border-bottom: none;
+}
+
+.swipeable-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 0;
+}
+
+.swipeable-actions--visible {
+  opacity: 1;
+}
+
+.undo-btn {
+  background: var(--amber-bg2);
+  border: 1px solid rgba(251,191,36,0.3);
+  border-radius: var(--radius-sm);
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  padding: 8px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.undo-btn:hover {
+  background: var(--amber);
+  color: #1a0f00;
+  border-color: var(--amber);
+}
+
+.undo-hint {
+  text-align: center;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
 /* Tips */
 .tip-item {
   display: flex;

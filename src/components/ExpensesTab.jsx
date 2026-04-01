@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import { generateInsights } from '../utils/insights'
 import InsightsCard from './InsightsCard'
@@ -38,9 +38,78 @@ function formatDate(iso) {
   return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }) + `, ${time}`
 }
 
+function SwipeableTransaction({ tx, onUndo, colorMap }) {
+  const [swiped, setSwiped]     = useState(false)
+  const startXRef               = useRef(null)
+  const containerRef            = useRef(null)
+
+  const SWIPE_THRESHOLD = 60
+
+  // ── Touch ──────────────────────────────────────────────────
+  const handleTouchStart = (e) => {
+    startXRef.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = (e) => {
+    if (startXRef.current === null) return
+    const diff = startXRef.current - e.changedTouches[0].clientX
+    if (diff > SWIPE_THRESHOLD)  setSwiped(true)
+    if (diff < -SWIPE_THRESHOLD) setSwiped(false)
+    startXRef.current = null
+  }
+
+  // ── Mouse ──────────────────────────────────────────────────
+  const handleMouseDown = (e) => {
+    startXRef.current = e.clientX
+  }
+
+  const handleMouseUp = (e) => {
+    if (startXRef.current === null) return
+    const diff = startXRef.current - e.clientX
+    if (diff > SWIPE_THRESHOLD)  setSwiped(true)
+    if (diff < -SWIPE_THRESHOLD) setSwiped(false)
+    startXRef.current = null
+  }
+
+  return (
+    <div className="swipeable-wrap" ref={containerRef}>
+      <div
+        className={`swipeable-content ${swiped ? 'swipeable-content--swiped' : ''}`}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+      >
+        <div className="tx-item">
+          <div
+            className="tx-icon"
+            style={{ background: `${colorMap[tx.category] ?? 'var(--blue)'}1A` }}
+          >
+            {tx.icon}
+          </div>
+          <div className="tx-info">
+            <div className="tx-name">{tx.name}</div>
+            <div className="tx-meta">{tx.category} · {formatDate(tx.date)}</div>
+          </div>
+          <div className={`tx-amount tx-amount--${tx.type}`}>
+            {tx.type === 'income' ? '+' : '-'} ₱ {fmt(tx.amount)}
+          </div>
+        </div>
+      </div>
+      <div className={`swipeable-actions ${swiped ? 'swipeable-actions--visible' : ''}`}>
+        <button
+          className="undo-btn"
+          onClick={() => { onUndo(tx); setSwiped(false) }}
+        >
+          ↩ Undo
+        </button>
+      </div>
+    </div>
+  )
+}
 
 export default function ExpensesTab() {
-  const { data, logExpense } = useApp()
+  const { data, logExpense, undoTransaction } = useApp()
   const { transactions = [], funds = {} } = data ?? {}
 
   const [selectedCat, setSelectedCat] = useState(CATEGORIES[0])
@@ -53,6 +122,13 @@ export default function ExpensesTab() {
   const canAdd = amt > 0 && !exceedsBalance
   const insights = generateInsights(data)
   const { showToast } = useToast()
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   const handleAdd = () => {
   if (!canAdd) return
 
@@ -262,23 +338,24 @@ export default function ExpensesTab() {
             </span>
           </div>
         </div>
+        {showTransactions && transactions.length > 0 && (
+          <div className="undo-hint">
+            {isMobile 
+              ? 'Swipe left a transaction to see undo option.' 
+              : 'Drag left a transaction to see undo option.'}
+          </div>
+        )}
         {showTransactions && (
           transactions.length === 0
             ? <div className="empty-state">No transactions yet.</div>
-            : transactions.slice(0, 10).map(tx => (
-              <div key={tx.id} className="tx-item">
-                <div className="tx-icon" style={{ background: `${CATEGORY_COLORS[tx.category] ?? 'var(--blue)'}1A` }}>
-                  {tx.icon}
-                </div>
-                <div className="tx-info">
-                  <div className="tx-name">{tx.name}</div>
-                  <div className="tx-meta">{tx.category} · {formatDate(tx.date)}</div>
-                </div>
-                <div className={`tx-amount tx-amount--${tx.type}`}>
-                  {tx.type === 'income' ? '+' : '-'} ₱ {fmt(tx.amount)}
-                </div>
-              </div>
-            ))
+          : transactions.slice(0, 10).map(tx => (
+            <SwipeableTransaction
+              key={tx.id}
+              tx={tx}
+              onUndo={undoTransaction}
+              colorMap={CATEGORY_COLORS}
+            />
+          ))
         )}
       </div>
 
