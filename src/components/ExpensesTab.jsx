@@ -3,6 +3,8 @@ import { useApp } from '../context/AppContext'
 import { generateInsights } from '../utils/insights'
 import InsightsCard from './InsightsCard'
 import { useToast } from '../context/ToastContext'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import './ExpensesTab.css'
 
 const CATEGORIES = [
@@ -35,6 +37,7 @@ function formatDate(iso) {
   if (isYesterday) return `Yesterday, ${time}`
   return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }) + `, ${time}`
 }
+
 
 export default function ExpensesTab() {
   const { data, logExpense } = useApp()
@@ -96,6 +99,74 @@ export default function ExpensesTab() {
     'Other':         'var(--muted-l)',
   }
 
+  function groupByMonth(transactions) {
+    return transactions.reduce((acc, tx) => {
+      const date = new Date(tx.date)
+      const key = date.toLocaleString('en-PH', { month: 'long', year: 'numeric' })
+
+      if (!acc[key]) acc[key] = []
+      acc[key].push(tx)
+
+      return acc
+    }, {})
+  }
+  function handleExportPDF() {
+    const doc = new jsPDF()
+
+    // Title
+    doc.setFontSize(16)
+    doc.text('Transaction Report', 14, 15)
+
+    doc.setFontSize(10)
+    doc.text(`Generated on ${new Date().toLocaleDateString('en-PH')}`, 14, 22)
+
+    let y = 30
+
+    const grouped = groupByMonth(transactions)
+
+    Object.entries(grouped).forEach(([month, txs]) => {
+      // Month Header
+      doc.setFontSize(12)
+      doc.text(month, 14, y)
+      y += 4
+
+      // Table
+      autoTable(doc, {
+        startY: y,
+        head: [['Name', 'Category', 'Date', 'Type', 'Amount']],
+        body: txs.map(tx => [
+          tx.name,
+          tx.category,
+          formatDate(tx.date),
+          tx.type,
+          `₱ ${fmt(Math.abs(tx.amount.toFixed(2)))}`
+        ]),
+        styles: {
+          fontSize: 9,
+        },
+        headStyles: {
+          fillColor: [30, 30, 30],
+          textColor: 255
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        },
+        margin: { left: 14, right: 14 },
+      })
+
+      // Move cursor after table
+      y = doc.lastAutoTable.finalY + 10
+
+      // Page break if needed
+      if (y > 260) {
+        doc.addPage()
+        y = 20
+      }
+    })
+
+    doc.save('transactions-report.pdf')
+  }
+  
   return (
     <div className="expenses-tab">
 
@@ -174,26 +245,22 @@ export default function ExpensesTab() {
         )}
       </div>
 
-      {/* Insight */}
-      {/* <div className="insight">
-        <span className="insight__icon">💡</span>
-        <div>
-          <div className="insight__title">Track every peso</div>
-          <div className="insight__text">
-            Logging expenses consistently helps you understand where your money goes
-            and make smarter spending decisions over time.
-          </div>
-        </div>
-      </div> */}
       <InsightsCard insights={insights} />
 
       {/* Recent Transactions */}
       <div className="card">
         <div className="card__hdr">
           <span className="card__title">Recent Transactions</span>
-          <span className="card__toggle" onClick={() => setShowTransactions(!showTransactions)}>
-            {showTransactions ? '▲ Hide' : '▼ Show'}
-          </span>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <span className="card__link" onClick={handleExportPDF}>
+              View All
+            </span>
+
+            <span className="card__toggle" onClick={() => setShowTransactions(!showTransactions)}>
+              {showTransactions ? '▲ Hide' : '▼ Show'}
+            </span>
+          </div>
         </div>
         {showTransactions && (
           transactions.length === 0
