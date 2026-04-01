@@ -241,6 +241,7 @@
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid var(--border);
+  padding:1rem;
 }
 
 .swipeable-wrap:last-child { border-bottom: none; }
