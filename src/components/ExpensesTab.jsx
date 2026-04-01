@@ -3,8 +3,6 @@ import { useApp } from '../context/AppContext'
 import { generateInsights } from '../utils/insights'
 import InsightsCard from './InsightsCard'
 import { useToast } from '../context/ToastContext'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 import './ExpensesTab.css'
 
 const CATEGORIES = [
@@ -175,74 +173,6 @@ export default function ExpensesTab() {
     'Other':         'var(--muted-l)',
   }
 
-  function groupByMonth(transactions) {
-    return transactions.reduce((acc, tx) => {
-      const date = new Date(tx.date)
-      const key = date.toLocaleString('en-PH', { month: 'long', year: 'numeric' })
-
-      if (!acc[key]) acc[key] = []
-      acc[key].push(tx)
-
-      return acc
-    }, {})
-  }
-  function handleExportPDF() {
-    const doc = new jsPDF()
-
-    // Title
-    doc.setFontSize(16)
-    doc.text('Transaction Report', 14, 15)
-
-    doc.setFontSize(10)
-    doc.text(`Generated on ${new Date().toLocaleDateString('en-PH')}`, 14, 22)
-
-    let y = 30
-
-    const grouped = groupByMonth(transactions)
-
-    Object.entries(grouped).forEach(([month, txs]) => {
-      // Month Header
-      doc.setFontSize(12)
-      doc.text(month, 14, y)
-      y += 4
-
-      // Table
-      autoTable(doc, {
-        startY: y,
-        head: [['Name', 'Category', 'Date', 'Type', 'Amount']],
-        body: txs.map(tx => [
-          tx.name,
-          tx.category,
-          formatDate(tx.date),
-          tx.type,
-          `₱ ${fmt(Math.abs(tx.amount.toFixed(2)))}`
-        ]),
-        styles: {
-          fontSize: 9,
-        },
-        headStyles: {
-          fillColor: [30, 30, 30],
-          textColor: 255
-        },
-        alternateRowStyles: {
-          fillColor: [245, 245, 245]
-        },
-        margin: { left: 14, right: 14 },
-      })
-
-      // Move cursor after table
-      y = doc.lastAutoTable.finalY + 10
-
-      // Page break if needed
-      if (y > 260) {
-        doc.addPage()
-        y = 20
-      }
-    })
-
-    doc.save('transactions-report.pdf')
-  }
-  
   return (
     <div className="expenses-tab">
 
@@ -328,15 +258,9 @@ export default function ExpensesTab() {
         <div className="card__hdr">
           <span className="card__title">Recent Transactions</span>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <span className="card__link" onClick={handleExportPDF}>
-              View All
-            </span>
-
-            <span className="card__toggle" onClick={() => setShowTransactions(!showTransactions)}>
-              {showTransactions ? '▲ Hide' : '▼ Show'}
-            </span>
-          </div>
+          <span className="card__toggle" onClick={() => setShowTransactions(!showTransactions)}>
+            {showTransactions ? '▲ Hide' : '▼ Show'}
+          </span>
         </div>
         {showTransactions && transactions.length > 0 && (
           <div className="undo-hint">
