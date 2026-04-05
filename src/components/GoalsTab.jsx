@@ -36,7 +36,7 @@ function NewGoalForm({ onClose }) {
       bg: selectedIcon.bg,
       color: selectedIcon.color,
     })
-    showToast(`Created ${name.trim()} goal!`, 'success')
+    showToast(`Created ${name.trim()} goal`, 'success')
     onClose()
   }
 
@@ -112,7 +112,7 @@ function GoalCard({ goal }) {
     fundGoal({ goalId: goal.id, amount: amt, source })
     setAmount('')
     setExpanded(false)
-    showToast(`Added ₱${amt.toFixed(2)} to ${goal.name} goal from ${source}!`, 'success')
+    showToast(`₱${amt.toFixed(2)} added to ${goal.name}`, 'success')
   }
 
   return (
@@ -234,7 +234,7 @@ function GoalCard({ goal }) {
                   className="confirm-modal__delete"
                   onClick={() => {
                     deleteGoal(goal.id)
-                    showToast(`Deleted ${goal.name} goal!`, 'success')
+                    showToast(`Deleted ${goal.name} goal`, 'success')
                     setShowConfirm(false)
                   }}
                 >

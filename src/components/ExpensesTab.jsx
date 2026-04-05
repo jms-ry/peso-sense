@@ -40,9 +40,14 @@ function SwipeableTransaction({ tx, onUndo, colorMap }) {
   const [swiped, setSwiped]     = useState(false)
   const startXRef               = useRef(null)
   const containerRef            = useRef(null)
-
+  const { showToast } = useToast()
   const SWIPE_THRESHOLD = 60
 
+  const handleUndo =() => {
+    onUndo(tx)
+    setSwiped(false)
+    showToast('Transaction undone','success')
+  }
   // ── Touch ──────────────────────────────────────────────────
   const handleTouchStart = (e) => {
     startXRef.current = e.touches[0].clientX
@@ -97,7 +102,7 @@ function SwipeableTransaction({ tx, onUndo, colorMap }) {
       <div className={`swipeable-actions ${swiped ? 'swipeable-actions--visible' : ''}`}>
         <button
           className="undo-btn"
-          onClick={() => { onUndo(tx); setSwiped(false) }}
+          onClick={handleUndo}
         >
           ↩ Undo
         </button>
@@ -128,18 +133,18 @@ export default function ExpensesTab() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
   const handleAdd = () => {
-  if (!canAdd) return
+    if (!canAdd) return
 
-  logExpense({
-    amount: amt,
-    category: selectedCat.label,
-    icon: selectedCat.icon,
-    name: selectedCat.label,
-  })
+    logExpense({
+      amount: amt,
+      category: selectedCat.label,
+      icon: selectedCat.icon,
+      name: selectedCat.label,
+    })
 
-  setAmount('')
-  showToast(`Logged ₱${amt.toFixed(2)} for ${selectedCat.label}!`, 'success')
-}
+    setAmount('')
+    showToast(`₱${amt.toFixed(2)} spent on ${selectedCat.label}`, 'success')
+  }
   // Build breakdown from transactions
   const expenseTransactions = transactions.filter(tx => tx.type === 'expense')
   const totalSpent = expenseTransactions.reduce((sum, tx) => sum + tx.amount, 0)

@@ -31,7 +31,7 @@ export default function AddFundsModal({ onClose }) {
       name: `${src.label} received`,
     })
 
-    showToast(`Added ₱${amt.toFixed(2)} from ${src.label}!`, 'success')
+    showToast(`₱${amt.toFixed(2)} added to funds`, 'success')
     onClose()
   }
 
