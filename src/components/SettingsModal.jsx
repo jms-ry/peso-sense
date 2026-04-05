@@ -36,7 +36,7 @@ export default function SettingsModal({ onClose }) {
     link.click()
     URL.revokeObjectURL(url)
 
-    showToast('Data exported successfully!', 'success')
+    showToast('Data exported successfully', 'success')
   }
 
   // ── IMPORT ──────────────────────────────────────────────────
@@ -81,7 +81,7 @@ export default function SettingsModal({ onClose }) {
     setShowConfirm(false)
     setPendingData(null)
 
-    showToast('Data imported successfully!', 'success')
+    showToast('Data imported successfully', 'success')
   }
 
   const handleCancelImport = () => {
