@@ -8,6 +8,7 @@ import GoalsTab from './components/GoalsTab'
 import SavingsTab from './components/SavingsTab'
 import Footer from './components/Footer'
 import SettingsModal from './components/SettingsModal'
+import { Analytics } from "@vercel/analytics/react"
 import './App.css'
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
   return (
     <div className="app">
       <div className="app__inner">
+        <Analytics/>
         <Header onSettings={() => setShowSettings(true)} />
         <main className="app__main">
           <FundsCard data={data} />
