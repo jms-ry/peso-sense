@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useApp } from '../context/AppContext'
 import { generateInsights } from '../utils/insights'
 import InsightsCard from './InsightsCard'
 import { useToast } from '../context/ToastContext'
+import { getRandomTips } from '../utils/tips'
 import './ExpensesTab.css'
 
 const CATEGORIES = [
@@ -126,6 +127,7 @@ export default function ExpensesTab() {
   const insights = generateInsights(data)
   const { showToast } = useToast()
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+  const tips = useMemo(() => getRandomTips(3), [])
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768)
@@ -293,30 +295,16 @@ export default function ExpensesTab() {
         <div className="card__hdr">
           <span className="card__title">💡 Money Tips</span>
         </div>
-        <div className="tip-item">
-          <span className="tip-icon">🛒</span>
-          <div className="tip-info">
-            <div className="tip-name">Buy from wet markets</div>
-            <div className="tip-desc">vs supermarkets for fresh produce</div>
+        {tips.map((tip, i) => (
+          <div key={i} className="tip-item">
+            <span className="tip-icon">{tip.icon}</span>
+            <div className="tip-info">
+              <div className="tip-name">{tip.name}</div>
+              <div className="tip-desc">{tip.desc}</div>
+            </div>
+            <div className="tip-savings">{tip.savings}</div>
           </div>
-          <div className="tip-savings">Save ₱ 600/mo</div>
-        </div>
-        <div className="tip-item">
-          <span className="tip-icon">💡</span>
-          <div className="tip-info">
-            <div className="tip-name">Unplug idle appliances</div>
-            <div className="tip-desc">Reduce your electric bill</div>
-          </div>
-          <div className="tip-savings">Save ₱ 200/mo</div>
-        </div>
-        <div className="tip-item">
-          <span className="tip-icon">📱</span>
-          <div className="tip-info">
-            <div className="tip-name">Use free WiFi when available</div>
-            <div className="tip-desc">Skip daily mobile data top-ups</div>
-          </div>
-          <div className="tip-savings">Save ₱ 150/mo</div>
-        </div>
+        ))}
       </div>
 
     </div>
