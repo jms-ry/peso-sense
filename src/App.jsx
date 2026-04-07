@@ -9,6 +9,7 @@ import SavingsTab from './components/SavingsTab'
 import Footer from './components/Footer'
 import SettingsModal from './components/SettingsModal'
 import { Analytics } from "@vercel/analytics/react"
+import { generateMonthlyReport } from './utils/generateMonthlyReport'
 import './App.css'
 
 export default function App() {
@@ -16,11 +17,16 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('expenses')
   const [showSettings,   setShowSettings]   = useState(false)
 
+  const handleDownloadReport = async () => {
+    const now = new Date()
+    await generateMonthlyReport(data, now.getMonth(), now.getFullYear())
+  }
+
   return (
     <div className="app">
       <div className="app__inner">
         <Analytics/>
-        <Header onSettings={() => setShowSettings(true)} />
+        <Header onSettings={() => setShowSettings(true)} onDownloadReport={handleDownloadReport}/>
         <main className="app__main">
           <FundsCard data={data} />
           <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
