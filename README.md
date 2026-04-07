@@ -44,6 +44,10 @@ A lightweight, privacy-first money tracking web app built for everyday Filipinos
 - Detects: low balance, dominant spending categories, overspending on leisure/clothing, missing savings, neglected goals, nearly complete goals, spending pace projection
 - Always visible in the Expenses tab for constant financial awareness
 
+### 📄 PDF Transaction Report
+- Financial statement report group by month
+- Bar graph that shows expenses, goals, and savings data in each month
+
 ### 📤 Export / Import Data
 - Export all data as a `.json` backup file
 - Import a backup to restore or sync data across devices
