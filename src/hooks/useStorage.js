@@ -31,7 +31,7 @@ function migrateData(data) {
   if ('savingsTotal' in data.savings) {
     data.savings = {
       ...data.savings,
-      total: data.savings.savingsTotal,
+      total: data.funds.totalSavings,
     }
     delete data.savings.savingsTotal
   }
