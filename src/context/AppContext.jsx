@@ -164,6 +164,7 @@ export function AppProvider({ children }) {
   function withdrawSavings({ amount }) {
     const amt = parseFloat(amount)
     if (!amt || amt <= 0) return
+    if (amt > data.savings.total) return
 
     const entry = {
       id: crypto.randomUUID(),
@@ -183,24 +184,21 @@ export function AppProvider({ children }) {
       date: new Date().toISOString(),
     }
 
-    updateData(prev => {
-      if (amt > prev.savings.total) return prev
-      return {
-        ...prev,
-        funds: {
-          ...prev.funds,
-          availableBalance: prev.funds.availableBalance + amt,
-          totalSavings:     prev.funds.totalSavings - amt,
-        },
-        savings: {
-          ...prev.savings,
-          total:          prev.savings.total - amt,
-          totalWithdrawn: prev.savings.totalWithdrawn + amt,
-          savingsHistory: [entry, ...prev.savings.savingsHistory],
-        },
-        transactions: [tx, ...prev.transactions],
-      }
-    })
+    updateData(prev => ({
+      ...prev,
+      funds: {
+        ...prev.funds,
+        availableBalance: prev.funds.availableBalance + amt,
+        totalSavings:     prev.funds.totalSavings - amt,
+      },
+      savings: {
+        ...prev.savings,
+        total:           prev.savings.total - amt,
+        totalWithdrawn:  prev.savings.totalWithdrawn + amt,
+        savingsHistory:         [entry, ...prev.savings.savingsHistory],
+      },
+      transactions: [tx, ...prev.transactions],
+    }))
   }
 
   // ── DELETE GOAL ────────────────────────────────────────────
