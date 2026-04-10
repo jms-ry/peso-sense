@@ -24,7 +24,7 @@ function formatDate(iso) {
 export default function SavingsTab() {
   const { data, addSavings, withdrawSavings } = useApp()
   const [showHistory, setShowHistory] = useState(true)
- const { showToast } = useToast()
+  const { showToast } = useToast()
 
   const {
     funds: {

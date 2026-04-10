@@ -14,7 +14,7 @@ const DEFAULT_STATE = {
   transactions: [],
   goals: [],
   savings: {
-    savingsTotal: 0,
+    total: 0,
     totalAdded: 0,
     totalWithdrawn: 0,
     savingsHistory: [],
@@ -26,11 +26,23 @@ const DEFAULT_STATE = {
   },
 }
 
+function migrateData(data) {
+  // fix corrupted savings shape
+  if ('savingsTotal' in data.savings) {
+    data.savings = {
+      ...data.savings,
+      total: data.savings.savingsTotal,
+    }
+    delete data.savings.savingsTotal
+  }
+  return data
+}
 function loadFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT_STATE
-    return JSON.parse(raw)
+    const parsed = JSON.parse(raw)
+    return migrateData(parsed)
   } catch {
     return DEFAULT_STATE
   }
